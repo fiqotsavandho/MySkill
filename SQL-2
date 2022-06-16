@@ -1,0 +1,96 @@
+--Using sales data Perform a query that returns/displays records,
+--Total quantity of mangoes and apples for 3 weeks after Eid al-Fitr 2022.
+--The column that only shows the product name column and the total quantity.
+
+SELECT product_name, 
+       SUM(quantity) AS total_quantity
+FROM sales
+WHERE product_name IN('Mangga','Apel')
+AND purchase_date BETWEEN '2022-05-03' AND '2022-05-24'
+GROUP BY product_name
+
+--Another answer 
+
+SELECT product_name, SUM(quantity) AS total  FROM sales
+WHERE purchase_date BETWEEN '2022-05-02' AND '2022-05-23'
+GROUP BY product_name
+HAVING product_name in ('Mangga', 'Apel')
+
+--Another answer
+
+SELECT product_name, SUM(quantity) AS total  FROM sales
+WHERE purchase_date BETWEEN '2022-05-02' AND '2022-05-23'
+GROUP BY product_name
+HAVING SUM(quantity) > 20
+
+
+--Using employee_data and store_data data perform a query that returns/displays records,
+--All employees who work in Bali and Yogyakarta
+--Use the Subquery method.
+
+SELECT * FROM employees
+WHERE store_city_id IN (SELECT store_city_id FROM region
+                        WHERE region IN ('Bali','Yogyakarta'))
+
+--Another asnwer
+
+SELECT emp.first_name, emp.department, rg.region
+FROM employees AS emp
+LEFT JOIN region AS rg
+ON emp.store_city_id = rg.store_city_id
+
+--Using sales data and store_data perform a query that returns/displays records,
+--Total income from the sale of fruit outside Java and Java, categorize the area based on the island.
+--For example Bandung is included from the island of Java.
+
+SELECT CASE WHEN store_city_id IN (SELECT store_city_id FROM region 
+                                   WHERE region IN('Yogyakarta','Jawa Timur','Jawa Barat','Jawa Tengah','Bandung','Jakarta')) THEN 'JAWA'
+            WHEN store_city_id IN (SELECT store_city_id FROM region
+                                   WHERE region IN('Sumatera','Sulawesi','Kalimantan','Bali')) THEN 'LUAR_JAWA'
+        END AS pulau,
+        SUM(quantity*price_per_kg) AS total_pendapatan
+FROM sales
+GROUP BY pulau
+
+--Another answer
+
+SELECT CASE WHEN store_city_id IN (SELECT store_city_id FROM region 
+                                   WHERE region IN('Yogyakarta','Jawa Timur','Jawa Barat','Jawa Tengah','Bandung','Jakarta')) THEN 'JAWA'
+        ELSE 'LUAR JAWA'
+        END AS pulau,
+        SUM(quantity*price_per_kg) AS total_pendapatan
+FROM sales
+GROUP BY pulau
+
+--Another answer
+
+SELECT CASE region
+WHEN 'Sumatera' THEN 'LUAR JAWA'
+WHEN 'Sulawesi' THEN 'LUAR JAWA'
+WHEN 'Bali' THEN 'LUAR JAWA'
+WHEN 'Kalimantan' THEN 'LUAR JAWA'
+ELSE 'JAWA'
+END AS daerah,  
+SUM (quantity*price_per_kg) AS total_pendapatan FROM sales
+LEFT JOIN region ON sales.store_city_id = region.store_city_id
+GROUP BY daerah;
+
+--Another answer
+
+SELECT
+	CASE
+		WHEN store_city_id IN (
+			SELECT
+				store_city_id
+			FROM
+				store
+			WHERE
+				region ~* 'yogyakarta|jawa timur|jawa barat|jawa tengah|bandung|jakarta'
+		) THEN 'Jawa'
+		ELSE 'Luar Jawa'
+	END AS region_area,
+	SUM(quantity * price_per_kg) AS total_price
+FROM
+	sales
+GROUP BY
+	region_area;
