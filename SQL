@@ -1,0 +1,102 @@
+# Create Table
+
+CREATE TABLE sales (
+  user_id int,
+  product_name varchar(255),
+  quantity int,
+  purchase_date date,
+  store_city_id int,
+  price_per_kg int,
+  primary key(user_id)
+);
+
+# Data on fruit sales in stores 3, 4 and 5 where fruit products have a price per kg above 11000
+
+SELECT product_name, SUM(quantity) AS total_buah FROM sales
+WHERE store_city_id BETWEEN 3 AND 5
+AND price_per_kg > 11000
+GROUP BY product_name
+ORDER BY total_buah
+
+SELECT store_city_id, SUM(quantity) AS total_buah FROM sales
+WHERE store_city_id BETWEEN 3 AND 5
+AND price_per_kg > 11000
+GROUP BY store_city_id
+ORDER BY total_buah
+
+# Data on fruit sales after the Eid al-Fitr in 2022
+
+SELECT * FROM sales
+WHERE purchase_date > '2022-05-03'
+
+SELECT product_name, SUM(quantity) AS total_buah FROM sales
+WHERE purchase_date > '2022-05-03'
+GROUP BY product_name
+ORDER BY total_buah
+
+# Data on sales of mangoes and oranges in all stores except stores 1,6,7
+
+SELECT * FROM sales
+WHERE product_name IN ('Mangga','Jeruk')
+AND store_city_id NOT IN (1,6,7)
+
+SELECT store_city_id, SUM(quantity) AS total_buah FROM sales
+WHERE product_name IN ('Mangga','Jeruk')
+AND store_city_id NOT IN (1,6,7)
+GROUP BY store_city_id
+ORDER BY total_buah
+
+# Show employee data and salaries in 2022
+
+CREATE TABLE employees (
+  employee_id int,
+  store_city_id int,
+  first_name varchar(255),
+  last_name varchar(255),
+  email varchar(255),
+  department varchar(255),
+  hire_date varchar(255),
+  salary_2020 int,
+  salary_2021 int,
+  salary_2022 int, 
+  primary key(employee_id)
+);
+
+SELECT 
+  employee_id,
+  store_city_id,
+  first_name,
+  last_name,
+  email,
+  department,
+  hire_date, 
+  salary_2022
+FROM employees
+
+
+SELECT 
+  department, 
+  COUNT(first_name) AS jumlah_karyawan
+FROM employees
+GROUP BY department
+ORDER BY jumlah_karyawan
+
+# Show the names of employees who work in stores 3,4,7 and earn above $5000 in 2022
+
+SELECT 
+  first_name,
+  last_name, 
+  store_city_id,
+  salary_2022
+FROM employees
+WHERE store_city_id IN (3,4,7)
+AND salary_2022 > 5000
+
+SELECT 
+  store_city_id,
+  SUM(salary_2022) AS total_gaji
+FROM employees
+WHERE store_city_id IN (3,4,7)
+AND salary_2022 > 5000
+GROUP BY store_city_id
+ORDER BY total_gaji
